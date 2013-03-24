@@ -1,0 +1,87 @@
+<?
+import preg;
+namespace routing;
+
+router = class {
+	ctor () {
+		this._routes = {};
+	}
+
+	register = function (method, pattern, handler) {
+		..table.push(this._routes, { method = method; pattern = pattern; handler = handler });
+	}
+
+	get = function (...) {
+		return this.register("GET", ...);
+	}
+
+	post = function (...) {
+		return this.register("POST", ...);
+	}
+
+	any = function (...) {
+		return this.register("ANY", ...);
+	}
+
+	split = function (action = "") {
+		action = ..string.replace(action, "^/index.ahtml", "");
+		action = ..string.trimright(action, "/");
+		if ( ! #action)
+			action = "";
+		return ..string.split(..string.trimleft(action, "/"), "/");
+	}
+
+	handle = function (action = "") {
+		action = ..string.replace(action, "^/index.ahtml", "");
+		action = ..string.trimright(action, "/");
+		if ( ! #action)
+			action = "/";
+		var requestMethod = request.server["REQUEST_METHOD"];
+		var handled = false;
+		for (i, route in this._routes) {
+			if (route.method !== requestMethod && route.method !== "ANY") {
+				continue;
+			}
+			if ( test(action, route.pattern) ) {
+				route.handler( match(action, route.pattern) );
+				handled = true;
+			}
+		}
+		return handled;
+	}
+}
+
+namespace router {
+	test = function (str, pattern) {
+		return ..preg( wildcards(pattern), "is" ).test(str);
+	}
+
+	match = function (str, pattern) {
+		return ..preg( wildcards(pattern), "is" ).match(str);
+	}
+	
+	var patterns = {
+		["@(:num)"] = "([0-9]+)";
+		["@(:any)"] = "([a-zA-Z0-9\.\-_%=]+)";
+		["@(:all)"] = "(.*)";
+	}
+	var optional = {
+		["@/(:num?)"] = "(?:/([0-9]+)";
+		["@/(:any?)"] = "(?:/([a-zA-Z0-9\.\-_%=]+)";
+		["@/(:all?)"] = "(?:/(.*)";
+	}
+	wildcards = function (pattern) {
+		for (k, v in patterns)
+			pattern = ..string.replace(pattern, k, v);
+		var repcount = 0;
+		var n;
+		for (k, v in optional) {
+			pattern, n = ..string.replace(pattern, k, v);
+			repcount += n;
+		}
+		if (repcount)
+			pattern = ..string.concat(pattern, ..string.repeat(repcount, ")?"));
+		pattern = ..string.concat("^", pattern, "$");
+		return pattern;
+	}
+}

@@ -1,0 +1,32 @@
+<?
+/* 指定 helpers 目录，优先级依次递减 */
+var dirs = {
+	SYSPATH ++ "helpers/";
+	APPPATH ++ "helpers/";
+};
+
+/* 记录已加载 helpers，避免重复加载 */
+var _helpers = {};
+
+tryRequire = function (...) {
+	if ( ! io.exist((...))) return false;
+	return true, require(...);
+}
+
+namespace helper {
+	require = function (name = "", ...) {
+		name = ..string.trim(name);
+		if ( (name !== "_") && ( ! ..string.match(name, "^[a-zA-Z0-9\_/]+$")) )
+			return false;
+		if (_helpers[name]) return true;
+
+		for (i = 1; #dirs) {
+			var ret = { ..tryRequire(..string.concat(dirs[i], name, ".ahtml"), ...) };
+			if (ret[1]) {
+				_helpers[name] = true;
+				return rget(1, ..table.unpack(ret));
+			}
+		}
+		error(..string.format('Failed to require "%s" helper. ', name), 2);
+	}
+}

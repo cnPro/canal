@@ -1,0 +1,110 @@
+<?
+import mysql;
+namespace helper.database;
+
+var cfg = ..config.database;
+
+mysql = class {
+	ctor (options) {
+		this = ..helper.database(options);
+	}
+
+	_connect = function () {
+		this.link = ..mysql();
+		if (this._options.permanent)
+			this.link.options_char(0x14/*_MYSQL_OPT_RECONNECT*/, 1);
+		if ( ! this.link.real_connect(cfg.host, cfg.username, cfg.password, cfg.dbname, cfg.port, cfg.socket))
+			return false, this.getErrorMsg();
+		return true;
+	}
+
+	_close = function () {
+		return this.link.close();
+	}
+
+	_escapeString = function (str) {
+		return ..mysql.escape_string(str);
+	}
+
+	_setCharset = function (charset, collation) {
+		if (collation)
+			return this.link.query("SET NAMES '" ++ this.escape(charset) ++ "' COLLATE '" ++ this.escape(collation) ++ "'");
+		else
+			return this.link.set_charset(charset);
+	}
+
+	_selectDb = function (name) {
+		return this.link.select_db(name);
+	}
+
+	_query = function (sql) {
+		var ret = this.link.query(sql);
+		if (type(ret) === type.boolean)
+			return ret;
+		return result(ret);
+	}
+
+	_transBegin = function () {
+		this.link.query("SET AUTOCOMMIT=0");
+		this.link.query("START TRANSACTION");
+		return true;
+	}
+
+	_transCommit = function () {
+		this.link.query("COMMIT");
+		this.link.query("SET AUTOCOMMIT=1");
+		return true;
+	}
+
+	_transRollback = function () {
+		this.link.query("ROLLBACK");
+		this.link.query("SET AUTOCOMMIT=1");
+		return true;
+	}
+
+	_getAffectedRows = function () {
+		return this.link.affected_rows;
+	}
+
+	_getInsertId = function () {
+		return this.link.get_insert_id();
+	}
+
+	_getErrorMsg = function () {
+		return this.link.get_error();
+	}
+
+	_getErrorNum = function () {
+		return this.link.get_errno();
+	}
+}
+
+namespace mysql {
+	result = class {
+		ctor (query) {
+			this.query = query;
+		}
+
+		result = function () {
+			var ret = {};
+			var row = this.query.fetch_object();
+			while (row) {
+				..table.push(ret, row);
+				row = this.query.fetch_object();
+			}
+			return ret;
+		}
+
+		row = function () {
+			return this.query.fetch_object();
+		}
+
+		rowCount = function () {
+			return this.query.get_num_rows();
+		}
+
+		fieldCount = function () {
+			return this.query.get_field_count();
+		}
+	}
+}

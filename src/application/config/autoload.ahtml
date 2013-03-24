@@ -1,0 +1,5 @@
+<?
+namespace config.autoload;
+
+/* 自动加载的 helpers 列表 */
+helpers = { "url" };

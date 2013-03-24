@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Canal 框架</title>
+</head>
+<body>
+<h2>欢迎使用 Canal 框架！</h2>
+<p>当您看到这个页面时，说明您已经成功安装 Canal 框架了！</p>
+<p>要想改变这里的内容，请删除或更改 <code>/application/views/home.ahtml</code> 的内容。</p>
+</body>
+</html>

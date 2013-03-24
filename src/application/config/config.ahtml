@@ -1,0 +1,6 @@
+<?
+namespace config;
+
+baseUrl = "/";
+indexPage = "index.ahtml";
+defaultController = "home";

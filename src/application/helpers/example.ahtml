@@ -1,0 +1,12 @@
+<?
+namespace helper.example;
+
+foo = function () {
+	
+}
+
+/*
+使用范例 (Controller 中)
+owner.helper.require("example");
+owner.helper.example.foo();
+*/

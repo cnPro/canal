@@ -1,0 +1,20 @@
+<?
+/* 指定 views 目录，优先级依次递减 */
+var dirs = {
+	APPPATH ++ "views/";
+};
+
+namespace view {
+	require = function (name = "", ...) {
+		name = ..string.trim(name);
+		if ( (name !== "_") && ( ! ..string.match(name, "^[a-zA-Z0-9\_/]+$")) )
+			return false;
+
+		for (i = 1; #dirs) {
+			var ret = { ..tryRequire(..string.concat(dirs[i], name, ".ahtml"), ...) };
+			if (ret[1])
+				return rget(1, ..table.unpack(ret));
+		}
+		error(..string.format('Failed to require "%s" view. ', name), 2);
+	}
+}

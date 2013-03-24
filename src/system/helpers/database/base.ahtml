@@ -1,0 +1,95 @@
+<?
+namespace helper;
+
+database = class {
+	ctor (options) {
+		this._options = ..table.mixin(options);
+	}
+
+	connect = function () {
+		if (this._connect)
+			return this._connect();
+		return false;
+	}
+
+	close = function () {
+		if (this._close)
+			return this._close();
+		return false;
+	}
+
+	escape = function (str = "") {
+		if (type(str) === type.boolean)
+			return str ? "TRUE" : "FALSE";
+		elseif (type(str) === type.number)
+			return tostring(str, 10);
+		elseif (this._escapeString)
+			return this._escapeString(str);
+		return "";
+	}
+
+	setCharset = function (charset = "", collation) {
+		if (this._setCharset)
+			return this._setCharset(charset, collation);
+		return false;
+	}
+
+	selectDb = function (name = "") {
+		if (this._selectDb)
+			return this._selectDb(name);
+		return false;
+	}
+
+	query = function (sql = "", ...) {
+		if (this._query)
+			var p = {...};
+			for (k, v in p) {
+				p[k] = this.escape(v);
+			}
+			sql = ..string.replace(sql, "\$\{(.+?)\}", {
+				pfx = this._options.prefix;	
+			});
+			sql = ..string.replace(sql, "@%", "%%");
+			sql = ..string.replace(sql, "@?", "%s");
+			return this._query(..string.format(sql, ..table.unpack(p)));
+		return false;
+	}
+
+	transBegin = function () {
+		if (this._transBegin)
+			return this._transBegin();
+		return false;
+	}
+
+	transCommit = function () {
+		if (this._transCommit)
+			return this._transCommit();
+		return false;
+	}
+
+	transRollback = function () {
+		if (this._transRollback)
+			return this._transRollback();
+		return false;
+	}
+
+	getAffectedRows = function () {
+		if (this._getAffectedRows)
+			return this._getAffectedRows();
+	}
+
+	getInsertId = function () {
+		if (this._getInsertId)
+			return this._getInsertId();
+	}
+
+	getErrorMsg = function () {
+		if (this._getErrorMsg)
+			return this._getErrorMsg();
+	}
+
+	getErrorNum = function () {
+		if (this._getErrorNum)
+			return this._getErrorNum();
+	}
+}

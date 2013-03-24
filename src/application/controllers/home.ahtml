@@ -1,0 +1,6 @@
+<?
+namespace controller.home;
+
+index = function () {
+	owner.view.require("home");
+}

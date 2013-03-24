@@ -1,0 +1,48 @@
+<?
+/* 加载配置文件 */
+..require(..APPPATH ++ "config/database.ahtml");
+
+var dbconn;
+if (config.database.permanent)
+	dbconn = global[["_cache"]][["dbconn"]];
+
+/* 连接数据库 */
+if ( ! dbconn) {
+	helper.require("database/base");
+
+	var getConnection = function (driver) {
+		var opt = { permanent = true };
+		var cls;
+		select (driver) {
+			case "mysql" {
+				helper.require("database/mysql");
+				cls = helper.database.mysql;
+			}
+		}
+		var dbconn = cls(table.mixin(config.database, opt));
+		var ok, err = dbconn.connect();
+		if (ok) return dbconn;
+		return null, err;
+	}
+
+	var err;
+	dbconn, err = getConnection(config.database.driver);
+	if ( ! dbconn)
+		error(err);
+	else if (config.database.permanent) {
+		global[["_cache"]] := {};
+		global[["_cache"]][["dbconn"]] = dbconn;
+	}
+}
+
+/* 选择库 */
+if (dbconn._selectDb && ( ! dbconn.selectDb(config.database.dbname))) {
+	error(dbconn.getErrorMsg());
+}
+
+/* 设置字符集 */
+dbconn.setCharset(config.database.charset);
+
+namespace helper {
+	database = dbconn;
+}

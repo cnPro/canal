@@ -1,0 +1,10 @@
+<?
+/*
+自定义路由，优先级大于控制器
+要开启本功能，请重命名本文件为 custom.ahtml
+*/
+
+router.get("/view/(:num)/(:num?)", function (id, page = 1) {
+	response.write("文章 id: ", id, "<br />");
+	response.write("第 ", page, " 页");
+});

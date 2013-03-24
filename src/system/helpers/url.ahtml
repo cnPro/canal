@@ -1,0 +1,24 @@
+<?
+namespace helper.url;
+
+base = function (url = "") {
+	url = ..string.trimleft(url, '/');
+	url = ..string.concat(..config.baseUrl, url);
+	if (url[1] === '/'#) {
+		var prefix = ..string.concat("http://", request.server["SERVER_NAME"]);
+		var port = request.server["SERVER_PORT"];
+		if (port !== "80") {
+			prefix = ..string.concat(prefix, ":", port);
+		}
+		url = ..string.concat(prefix, url);
+	}
+	return url;
+}
+
+site = function (act = "") {
+	if (!#act) {
+		return base(..config.indexPage);
+	}
+	act = ..string.trimleft(act, '/');
+	return base(..string.concat(..config.indexPage, "/", act));
+}

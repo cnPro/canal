@@ -1,0 +1,58 @@
+<?
+BASEPATH = io.fullpath("../");
+APPPATH = io.fullpath("../application/");
+SYSPATH = io.fullpath("../system/");
+
+{
+	/* 加载配置 */
+	require(APPPATH ++ "config/config.ahtml");
+	require(APPPATH ++ "config/autoload.ahtml");
+}
+
+{
+	/* 加载辅助函数 */
+	require(SYSPATH ++ "helpers/helper.ahtml");
+	helper.require("error");
+	helper.require("controller");
+	helper.require("view");
+
+	for (i, name in config.autoload.helpers)
+		helper.require(name);
+}
+
+{
+	/* 加载路由 */
+	require(SYSPATH ++ "routing/router.ahtml");
+	router = routing.router();
+	var action = request.server["PATH_INFO"];
+
+	/* 尝试加载自定义路由配置 */
+	var customRouter = false;
+	try {
+		require(APPPATH ++ "routing/custom.ahtml");
+		customRouter = true;
+	}
+	if (customRouter && router.handle(action)) return;
+
+	/* 自动加载控制器 */
+	action = router.split(action);
+	var ctlname = (action[1] == "") ? config.defaultController : action[1];
+	if (( ! controller.require(ctlname)) || ( ! controller[ctlname])) {
+		helper.error.show(404);
+		return;
+	}
+
+	/* 调用控制器方法 */
+	var ctl = controller[ctlname];
+	if (type(ctl) === type.class) {
+		ctl = rget(2, call(ctl, self));
+	}
+	var method = #action[2] ? action[2] : "index";
+	var func = ctl[method];
+	if ( ! func) {
+		helper.error.show(404);
+		return;
+	}
+	var ok, err = call(func, self, rget(3, table.unpack(action)));
+	if ( ! ok) error(err, -1);
+}
