@@ -47,7 +47,7 @@ prefix = "";
 /*
 数据库所使用的字符集
 */
-charset = "utf-8";
+charset = "utf8";
 
 /*
 是否启用全局连接缓存
